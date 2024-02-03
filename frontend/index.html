@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Weather App</title>
+</head>
+
+<body>
+    <h1>Weather App</h1>
+
+    <label for="cityInput">Enter cities (comma-separated):</label>
+    <input type="text" id="cityInput" placeholder="e.g., Toronto, Mumbai, London">
+    <br>
+    <button onclick="getWeather()">Get Weather</button>
+
+    <div id="weatherResults"></div>
+
+    <script>
+        async function getWeather() {
+            const cityInput = document.getElementById('cityInput').value;
+            const cities = cityInput.split(',').map(city => city.trim());
+
+            if (cities.length === 0) {
+                alert('Please enter at least one city.');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/getWeather', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ cities }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayWeather(data.weather);
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again.');
+            }
+        }
+
+        function displayWeather(weatherData) {
+            const weatherResultsContainer = document.getElementById('weatherResults');
+            weatherResultsContainer.innerHTML = '';
+
+            for (const city in weatherData) {
+                const resultElement = document.createElement('p');
+                resultElement.textContent = `${city}: ${weatherData[city]}`;
+                weatherResultsContainer.appendChild(resultElement);
+            }
+        }
+    </script>
+</body>
+
+</html>
